@@ -29,16 +29,19 @@ import java.lang.foreign.MemorySegment;
 
 public class DataChunk implements AutoCloseable {
     private Arena duckArena;
-    private MemorySegment dataChunkpPtr;
+    private MemorySegment dataChunk;
 
-    protected DataChunk(Arena arena, MemorySegment ptr) {
+    protected DataChunk(Arena arena, MemorySegment chunk) {
         this.duckArena = arena;
-        this.dataChunkpPtr = ptr;
+        this.dataChunk = chunk;
     }
-
-
+    
     public void close() throws Exception {
-        duckdb_h.duckdb_destroy_data_chunk(this.dataChunkpPtr);
+        MemorySegment chunkPtr = this.dataChunk.get(duckdb_h.C_POINTER, 0);
+        duckdb_h.duckdb_destroy_data_chunk(chunkPtr);
     }
 
+    public long getColumnCount() throws Exception {
+        return duckdb_h.duckdb_data_chunk_get_column_count(this.dataChunk);
+    }
 }

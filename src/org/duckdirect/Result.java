@@ -25,6 +25,7 @@ package org.duckdirect;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import org.duckdb.capi.duckdb_h;
+import org.duckdb.capi.duckdb_result;
 
 public class Result implements AutoCloseable {
     private Arena duckArena;
@@ -68,8 +69,9 @@ public class Result implements AutoCloseable {
         return duckdb_h.duckdb_result_error(this.resultPtr).getUtf8String(0);
     }
 
-//    public DataChunk fetchChunk() throws Exception {
-//        MemorySegment ms = duckdb_h.duckdb_fetch_chunk(this.resPtr);
-//    }
+    public DataChunk fetchChunk() throws Exception {
+        MemorySegment chunk = duckdb_h.duckdb_fetch_chunk(this.result);
+        return new DataChunk(this.duckArena, chunk);
+    }
 
 }

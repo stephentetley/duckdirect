@@ -22,6 +22,7 @@
 
 
 import org.duckdirect.Connection;
+import org.duckdirect.DataChunk;
 import org.duckdirect.Database;
 import org.duckdirect.Result;
 
@@ -51,6 +52,10 @@ public class Demo1 {
                     System.out.println("Column 1: " + res.columnType(0));
                     System.out.println("Rows changed: " + res.rowsChanged());
                     System.out.println("result.1");
+                    try(DataChunk chunk = res.fetchChunk()) {
+                        System.out.println("chunk...");
+                        System.out.println("Chunk column count: " + chunk.getColumnCount());
+                    }
                 }
                 System.out.println("connection.1");
             }
