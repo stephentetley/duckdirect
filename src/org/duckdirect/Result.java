@@ -28,6 +28,7 @@ import org.duckdb.capi.duckdb_h;
 
 public class Result implements AutoCloseable {
     private Arena duckArena;
+    /// Note duckdb's `result` type is a struct not a pointer to a struct...
     private MemorySegment resPtr;
 
     protected Result(Arena arena, MemorySegment ptr) {
@@ -44,10 +45,6 @@ public class Result implements AutoCloseable {
         return duckdb_h.duckdb_column_count(this.resPtr);
     }
 
-    public long rowCount() throws Exception {
-        return duckdb_h.duckdb_row_count(this.resPtr);
-    }
-
     public long rowsChanged() throws Exception {
         return duckdb_h.duckdb_rows_changed(this.resPtr);
     }
@@ -58,5 +55,9 @@ public class Result implements AutoCloseable {
     public String resultError() throws Exception {
         return duckdb_h.duckdb_result_error(this.resPtr).getUtf8String(0);
     }
+
+//    public DataChunk fetchChunk() throws Exception {
+//        MemorySegment ms = duckdb_h.duckdb_fetch_chunk(this.resPtr);
+//    }
 
 }

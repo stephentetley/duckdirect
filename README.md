@@ -4,7 +4,6 @@ Experiments calling the DuckDB C API (v1.1) via Java Panama
 
 Currently on Java 21 (differences to 22 are allocate / get Utf8Strings).
 
-Result has EXCEPTION_ACCESS_VIOLATION somewhere...
 
 `duckdb.dll` and `duckdb.lib` are included at the top level for Windows users. 
 Linux / MacOS users will need to add relevant shared libraries to the project

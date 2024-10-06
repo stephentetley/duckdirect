@@ -46,7 +46,6 @@ public class Demo1 {
                     System.out.println("Column count: " + res.columnCount());
                     System.out.println("Column 0: " + res.columnName(0));
                     System.out.println("Column 1: " + res.columnName(1));
-                    System.out.println("Row count: " + res.rowCount());
                     System.out.println("Rows changed: " + res.rowsChanged());
                     System.out.println("result.1");
                 }

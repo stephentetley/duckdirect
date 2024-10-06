@@ -25,6 +25,7 @@ package org.duckdirect;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import org.duckdb.capi.duckdb_h;
+import org.duckdb.capi.duckdb_result;
 import org.duckdirect.internal.DuckDBState;
 
 public class Connection implements AutoCloseable {
@@ -38,7 +39,9 @@ public class Connection implements AutoCloseable {
 
     public Result query(String query) throws Exception {
         MemorySegment conn = this.connPtr.get(duckdb_h.C_POINTER, 0);
-        MemorySegment resPtr = this.duckArena.allocate(duckdb_h.C_POINTER);
+        MemorySegment res = duckdb_result.allocate(this.duckArena);
+        // Is this the right way to get a pointer to the res?
+        MemorySegment resPtr = duckdb_result.ofAddress(res, this.duckArena);
         int i = duckdb_h.duckdb_query(conn, this.duckArena.allocateUtf8String(query), resPtr);
         if (i == DuckDBState.DUCKDB_SUCCESS) {
             return new Result(this.duckArena, resPtr);
