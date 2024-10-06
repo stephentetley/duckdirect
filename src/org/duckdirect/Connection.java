@@ -30,28 +30,28 @@ import org.duckdirect.internal.DuckDBState;
 
 public class Connection implements AutoCloseable {
     private Arena duckArena;
-    private MemorySegment connPtr;
+    private MemorySegment connectionpPtr;
 
     protected Connection(Arena arena, MemorySegment ptr) {
         this.duckArena = arena;
-        this.connPtr = ptr;
+        this.connectionpPtr = ptr;
     }
 
     public Result query(String query) throws Exception {
-        MemorySegment conn = this.connPtr.get(duckdb_h.C_POINTER, 0);
+        MemorySegment conn = this.connectionpPtr.get(duckdb_h.C_POINTER, 0);
         MemorySegment res = duckdb_result.allocate(this.duckArena);
         // Is this the right way to get a pointer to the res?
         MemorySegment resPtr = duckdb_result.ofAddress(res, this.duckArena);
         int i = duckdb_h.duckdb_query(conn, this.duckArena.allocateUtf8String(query), resPtr);
         if (i == DuckDBState.DUCKDB_SUCCESS) {
-            return new Result(this.duckArena, resPtr);
+            return new Result(this.duckArena, res, resPtr);
         } else {
             throw new RuntimeException("query");
         }
     }
 
     public void close() throws Exception {
-        duckdb_h.duckdb_disconnect(this.connPtr);
+        duckdb_h.duckdb_disconnect(this.connectionpPtr);
     }
 
 }

@@ -32,16 +32,16 @@ import org.duckdirect.internal.DuckDBState;
 
 public class Database implements AutoCloseable {
     private Arena duckArena;
-    private MemorySegment dbPtr;
+    private MemorySegment databasepPtr;
 
-    private Database(Arena arena, MemorySegment ms) {
+    private Database(Arena arena, MemorySegment ptr) {
         this.duckArena = arena;
-        this.dbPtr = ms;
+        this.databasepPtr = ptr;
     }
 
     public static String getLibraryVersion() {
-        MemorySegment ms = duckdb_h.duckdb_library_version();
-        return ms.getUtf8String(0);
+        MemorySegment ptr = duckdb_h.duckdb_library_version();
+        return ptr.getUtf8String(0);
     }
 
     public static Database open(Path path) throws Exception {
@@ -65,14 +65,14 @@ public class Database implements AutoCloseable {
     }
 
     public void close() throws Exception {
-        duckdb_h.duckdb_close(this.dbPtr);
+        duckdb_h.duckdb_close(this.databasepPtr);
         duckArena.close();
     }
 
     public Connection connect() throws Exception {
         MemorySegment conn = this.duckArena.allocate(duckdb_h.C_POINTER);
         System.out.println("connect.1");
-        MemorySegment db = this.dbPtr.get(duckdb_h.C_POINTER, 0);
+        MemorySegment db = this.databasepPtr.get(duckdb_h.C_POINTER, 0);
         int i = duckdb_h.duckdb_connect(db, conn);
         System.out.println("connect.2");
         if (i == DuckDBState.DUCKDB_SUCCESS) {
@@ -84,6 +84,6 @@ public class Database implements AutoCloseable {
     }
 
     public void interrupt() throws Exception {
-        duckdb_h.duckdb_interrupt(this.dbPtr);
+        duckdb_h.duckdb_interrupt(this.databasepPtr);
     }
 }

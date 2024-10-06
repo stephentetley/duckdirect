@@ -29,31 +29,43 @@ import org.duckdb.capi.duckdb_h;
 public class Result implements AutoCloseable {
     private Arena duckArena;
     /// Note duckdb's `result` type is a struct not a pointer to a struct...
-    private MemorySegment resPtr;
+    private MemorySegment result;
+    private MemorySegment resultPtr;
 
-    protected Result(Arena arena, MemorySegment ptr) {
+    protected Result(Arena arena, MemorySegment res, MemorySegment ptr) {
         this.duckArena = arena;
-        this.resPtr = ptr;
+        this.result = res;
+        this.resultPtr = ptr;
     }
 
 
     public void close() throws Exception {
-        duckdb_h.duckdb_destroy_result(this.resPtr);
-    }
-
-    public long columnCount() throws Exception {
-        return duckdb_h.duckdb_column_count(this.resPtr);
-    }
-
-    public long rowsChanged() throws Exception {
-        return duckdb_h.duckdb_rows_changed(this.resPtr);
+        duckdb_h.duckdb_destroy_result(this.resultPtr);
     }
 
     public String columnName(long ix) throws Exception {
-        return duckdb_h.duckdb_column_name(this.resPtr, ix).getUtf8String(0);
+        return duckdb_h.duckdb_column_name(this.resultPtr, ix).getUtf8String(0);
     }
+
+    public ValueType columnType(long ix) throws Exception {
+        return ValueType.of(duckdb_h.duckdb_column_type(this.resultPtr, ix));
+    }
+
+    public StatementType resultStatementType() throws Exception {
+        return StatementType.of(duckdb_h.duckdb_result_statement_type(this.result));
+    }
+
+
+    public long columnCount() throws Exception {
+        return duckdb_h.duckdb_column_count(this.resultPtr);
+    }
+
+    public long rowsChanged() throws Exception {
+        return duckdb_h.duckdb_rows_changed(this.resultPtr);
+    }
+
     public String resultError() throws Exception {
-        return duckdb_h.duckdb_result_error(this.resPtr).getUtf8String(0);
+        return duckdb_h.duckdb_result_error(this.resultPtr).getUtf8String(0);
     }
 
 //    public DataChunk fetchChunk() throws Exception {

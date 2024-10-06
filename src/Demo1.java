@@ -43,9 +43,12 @@ public class Demo1 {
                 try(Result res = conn.query("SELECT * FROM duckdb_settings();")) {
                     // Getting a EXCEPTION_ACCESS_VIOLATION here...
                     System.out.println("result...");
+                    System.out.println("result statement type: " + res.resultStatementType());
                     System.out.println("Column count: " + res.columnCount());
                     System.out.println("Column 0: " + res.columnName(0));
+                    System.out.println("Column 0: " + res.columnType(0));
                     System.out.println("Column 1: " + res.columnName(1));
+                    System.out.println("Column 1: " + res.columnType(0));
                     System.out.println("Rows changed: " + res.rowsChanged());
                     System.out.println("result.1");
                 }
