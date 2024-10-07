@@ -48,11 +48,6 @@ public class Database implements AutoCloseable {
         Arena arena = Arena.ofConfined();
         MemorySegment dbPtr = arena.allocate(duckdb_h.C_POINTER);
         String spath = null;
-        if (!path.toFile().exists()) {
-            System.out.println("path does not exist: " + path);
-        } else {
-            System.out.println("path exists: " + path);
-        }
         if (path != null) {
             spath = path.toString();
         }

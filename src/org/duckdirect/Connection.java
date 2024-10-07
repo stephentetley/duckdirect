@@ -37,6 +37,7 @@ public class Connection implements AutoCloseable {
         this.connectionpPtr = ptr;
     }
 
+    // Note some queries CREATE TABLE etc don't return return a Result
     public Result query(String query) throws Exception {
         MemorySegment conn = this.connectionpPtr.get(duckdb_h.C_POINTER, 0);
         MemorySegment res = duckdb_result.allocate(this.duckArena);
@@ -49,6 +50,19 @@ public class Connection implements AutoCloseable {
             throw new RuntimeException("query");
         }
     }
+
+    public void execute(String statement) throws Exception {
+        MemorySegment conn = this.connectionpPtr.get(duckdb_h.C_POINTER, 0);
+        MemorySegment res = duckdb_result.allocate(this.duckArena);
+        MemorySegment resPtr = duckdb_result.ofAddress(res, this.duckArena);
+        int i = duckdb_h.duckdb_query(conn, this.duckArena.allocateUtf8String(statement), resPtr);
+        if (i == DuckDBState.DUCKDB_SUCCESS) {
+            return;
+        } else {
+            throw new RuntimeException("execute");
+        }
+    }
+
 
     public void close() throws Exception {
         duckdb_h.duckdb_disconnect(this.connectionpPtr);

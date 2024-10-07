@@ -69,9 +69,17 @@ public class Result implements AutoCloseable {
         return duckdb_h.duckdb_result_error(this.resultPtr).getUtf8String(0);
     }
 
+    // The primitive C function `duckdb_fetch_chunk` returns NULL on error, this should be
+    // transformed into an Exception by the JExtract code.
     public DataChunk fetchChunk() throws Exception {
-        MemorySegment chunk = duckdb_h.duckdb_fetch_chunk(this.result);
-        return new DataChunk(this.duckArena, chunk);
+        try {
+            MemorySegment chunk = duckdb_h.duckdb_fetch_chunk(this.result);
+            return new DataChunk(this.duckArena, chunk);
+        } catch (Exception e) {
+            System.out.println("fetchChunk - exception");
+            return null;
+        }
+
     }
 
 }

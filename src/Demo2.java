@@ -25,9 +25,7 @@ import org.duckdirect.*;
 
 import java.nio.file.Path;
 
-public class Demo1 {
-
-
+public class Demo2 {
 
     public static void main(String[] args) throws Exception {
         System.loadLibrary("duckdb");
@@ -35,31 +33,23 @@ public class Demo1 {
         String s = Database.getLibraryVersion();
         System.out.println("version: " + s);
 
-        try (Database db = Database.open(Path.of("data/db2.duckdb"))) {
+        try (Database db = Database.open(Path.of("data/values.duckdb"))) {
             System.out.println("open success");
             try (Connection conn = db.connect()) {
-                try(Result res = conn.query("SELECT * FROM duckdb_settings();")) {
-                    // Getting a EXCEPTION_ACCESS_VIOLATION here...
-                    System.out.println("result...");
-                    System.out.println("result statement type: " + res.resultStatementType());
-                    System.out.println("Column count: " + res.columnCount());
-                    System.out.println("Column 0: " + res.columnName(0));
-                    System.out.println("Column 0: " + res.columnType(0));
-                    System.out.println("Column 1: " + res.columnName(1));
-                    System.out.println("Column 1: " + res.columnType(0));
-                    System.out.println("Rows changed: " + res.rowsChanged());
-                    System.out.println("result.1");
+                conn.execute("CREATE OR REPLACE TABLE integers (i INTEGER, j INTEGER);");
+                conn.execute("INSERT INTO integers VALUES (3, 4), (5, 6), (7, NULL);");
+                try(Result res = conn.query("SELECT * FROM integers;")) {
                     while (true) {
                         try (DataChunk chunk = res.fetchChunk()) {
                             System.out.println("chunk...");
                             System.out.println("Chunk column count: " + chunk.getColumnCount());
-                            long rowCount = chunk.getSize();
-                            ValueVector col1 = chunk.getVector(0);
+                            System.out.println("Chunk size: " + chunk.getSize());
+//                            long rowCount = chunk.getSize();
+//                            ValueVector col1 = chunk.getVector(0);
                         }
                         break;
                     }
                 }
-                System.out.println("connection.1");
             }
         }
         System.out.println("Done");

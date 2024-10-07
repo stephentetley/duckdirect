@@ -27,31 +27,31 @@ import org.duckdb.capi.duckdb_h;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
-public class DataChunk implements AutoCloseable {
+// Make this a tangible object - in C it is an array of long
+
+public class ValidityMask {
     private Arena duckArena;
-    private MemorySegment dataChunk;
+    private MemorySegment mask;
 
-    protected DataChunk(Arena arena, MemorySegment chunk) {
+    protected ValidityMask(Arena arena, MemorySegment vec) {
         this.duckArena = arena;
-        this.dataChunk = chunk;
+        this.mask = vec;
     }
 
-    public void close() throws Exception {
-        System.out.println("DataChunk.close()");
-        MemorySegment chunkPtr = this.dataChunk.get(duckdb_h.C_POINTER, 0);  // <-- this is wrong
-        duckdb_h.duckdb_destroy_data_chunk(chunkPtr);
-        System.out.println("DataChunk.close().2");
+    public boolean rowIsValid(long row) {
+        return duckdb_h.duckdb_validity_row_is_valid(this.mask, row);
     }
 
-    public long getColumnCount() throws Exception {
-        return duckdb_h.duckdb_data_chunk_get_column_count(this.dataChunk);
+    public void setRowInvalid(long row) {
+        duckdb_h.duckdb_validity_set_row_invalid(this.mask, row);
     }
 
-    public long getSize() throws Exception {
-        return duckdb_h.duckdb_data_chunk_get_size(this.dataChunk);
+    public void setRowValid(long row) {
+        duckdb_h.duckdb_validity_set_row_valid(this.mask, row);
     }
-    public ValueVector getVector(long ix) throws Exception {
-        MemorySegment vec = duckdb_h.duckdb_data_chunk_get_vector(this.dataChunk, ix);
-        return new ValueVector(this.duckArena, vec);
+
+    public void setRowValidity(long row, boolean valid) {
+        duckdb_h.duckdb_validity_set_row_validity(this.mask, row, valid);
     }
+
 }
